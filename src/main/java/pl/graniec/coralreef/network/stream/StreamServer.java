@@ -70,15 +70,21 @@ public class StreamServer implements Server {
 					
 					final Socket remoteSocket = socket.accept();
 					
-					// create new remote client
-					final StreamRemoteClient remoteClient = new StreamRemoteClient(remoteSocket);
 					
+					// this below is all synchronized because remote client can report disconnection
+					// before library user can be notified about client connection. Synchronization will
+					// guarantee that connection will be notified first, and disconnection later
 					synchronized (remoteClients) {
+						
+						// create new remote client
+						final StreamRemoteClient remoteClient = new StreamRemoteClient(StreamServer.this, remoteSocket);
+						
 						remoteClients.add(remoteClient);
+						
+						// and report about it
+						notifyClientConnected(remoteClient);
+						
 					}
-					
-					// and report about it
-					notifyClientConnected(remoteClient);
 					
 					
 				} catch (SocketTimeoutException e) {
@@ -103,7 +109,7 @@ public class StreamServer implements Server {
 	/** Stream socket */
 	private ServerSocket socket;
 	/** Remote clients */
-	private final List<StreamRemoteClient> remoteClients = new LinkedList<StreamRemoteClient>();
+	final List<StreamRemoteClient> remoteClients = new LinkedList<StreamRemoteClient>();
 	/** New connections listener */
 	private Listener acceptListener;
 	

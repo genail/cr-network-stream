@@ -41,6 +41,7 @@ import java.util.List;
 
 import pl.graniec.coralreef.network.PacketListener;
 import pl.graniec.coralreef.network.server.RemoteClient;
+import pl.graniec.coralreef.network.server.Server;
 
 /**
  * @author Piotr Korzuszek <piotr.korzuszek@gmail.com>
@@ -48,6 +49,45 @@ import pl.graniec.coralreef.network.server.RemoteClient;
  */
 public class StreamRemoteClient implements RemoteClient {
 
+	private class Listener extends Thread {
+		private static final int SO_TIMEOUT = 100;
+
+		/*
+		 * @see java.lang.Thread#run()
+		 */
+		@Override
+		public void run() {
+
+			InputStream is;
+			ObjectInputStream ois;
+			
+			try {
+				// socket configuration
+				socket.setSoTimeout(SO_TIMEOUT);
+				
+				// get input stream or report disconnection
+				is = socket.getInputStream();
+				ois = new ObjectInputStream(is);
+				
+			} catch (IOException e) {
+				// synchronization will guarantee right order of notifying about connection
+				// and disconnection
+				synchronized (parent.remoteClients) {
+					notifyClientDisconnected(Server.REASON_CONNECTION_RESET, e.getMessage());
+					return;
+				}
+			}
+			
+			while (!isInterrupted()) {
+				
+				//FIXME: Finish me!
+				
+			}
+		}
+	}
+
+	/** Parent Server */
+	private final StreamServer parent;
 	/** Socket of this client */
 	private final Socket socket;
 	
@@ -59,7 +99,8 @@ public class StreamRemoteClient implements RemoteClient {
 	/** Packet listeners */
 	private final List<PacketListener> packetListeners = new LinkedList<PacketListener>();
 
-	public StreamRemoteClient(Socket socket) {
+	public StreamRemoteClient(StreamServer parent, Socket socket) {
+		this.parent = parent;
 		this.socket = socket;
 		
 		// get proper output and input stream
@@ -69,8 +110,7 @@ public class StreamRemoteClient implements RemoteClient {
 			final BufferedOutputStream bos = new BufferedOutputStream(os);
 			oos = new ObjectOutputStream(bos);
 			
-			final InputStream is = socket.getInputStream();
-			ois = new ObjectInputStream(ois);
+			
 		} catch (IOException e) {
 			// TODO Sprawdzić co może wyrzucić
 			e.printStackTrace();
@@ -142,6 +182,10 @@ public class StreamRemoteClient implements RemoteClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void notifyClientDisconnected(int reason, String reasonStr) {
+		
 	}
 
 }
