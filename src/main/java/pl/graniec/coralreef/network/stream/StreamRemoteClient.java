@@ -39,6 +39,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 
+import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.PacketListener;
 import pl.graniec.coralreef.network.server.RemoteClient;
 import pl.graniec.coralreef.network.server.Server;
@@ -73,7 +74,7 @@ public class StreamRemoteClient implements RemoteClient {
 				// synchronization will guarantee right order of notifying about connection
 				// and disconnection
 				synchronized (parent.remoteClients) {
-					notifyClientDisconnected(Server.REASON_CONNECTION_RESET, e.getMessage());
+					notifyClientDisconnected(DisconnectReason.Reset, e.getMessage());
 					return;
 				}
 			}
@@ -184,7 +185,7 @@ public class StreamRemoteClient implements RemoteClient {
 		}
 	}
 	
-	private void notifyClientDisconnected(int reason, String reasonStr) {
+	private void notifyClientDisconnected(DisconnectReason reason, String reasonStr) {
 		
 	}
 
