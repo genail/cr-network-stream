@@ -36,6 +36,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
+import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.exceptions.NetworkException;
 import pl.graniec.coralreef.network.server.ConnectionListener;
 import pl.graniec.coralreef.network.server.RemoteClient;
@@ -181,6 +182,41 @@ public class StreamServer implements Server {
 		return socket != null && socket.isBound();
 	}
 
+	private void notifyClientConnected(RemoteClient client) {
+		ConnectionListener[] copy;
+		
+		synchronized (connectionListeners) {
+			copy = connectionListeners.toArray(new ConnectionListener[connectionListeners.size()]);
+		}
+		
+		for (ConnectionListener c : copy) {
+			c.clientConnected(client);
+		}
+	}
+
+	void notifyClientDisconnected(RemoteClient client, DisconnectReason reason, String reasonString) {
+		
+		synchronized (remoteClients) {
+			// first remove this client from the list
+			// if client is not on the list, then this
+			// notification should be ignored
+			if( !remoteClients.remove(client) ) {
+				return;
+			}
+		}
+		
+		// make a copy of listeners and invoke each of it
+		ConnectionListener[] copy;
+		
+		synchronized (connectionListeners) {
+			copy = connectionListeners.toArray(new ConnectionListener[connectionListeners.size()]);
+		}
+		
+		for (ConnectionListener c : copy) {
+			c.clientDisconnected(client, reason, reasonString);
+		}
+	}
+	
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#open(int)
 	 */
@@ -212,7 +248,7 @@ public class StreamServer implements Server {
 			}
 		}
 	}
-
+	
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#removeConnectionListener(pl.graniec.coralreef.network.server.ConnectionListener)
 	 */
@@ -225,18 +261,6 @@ public class StreamServer implements Server {
 		
 		synchronized (connectionListeners) {
 			return connectionListeners.remove(l);
-		}
-	}
-	
-	private void notifyClientConnected(RemoteClient client) {
-		ConnectionListener[] copy;
-		
-		synchronized (connectionListeners) {
-			copy = connectionListeners.toArray(new ConnectionListener[connectionListeners.size()]);
-		}
-		
-		for (ConnectionListener c : copy) {
-			c.clientConnected(client);
 		}
 	}
 

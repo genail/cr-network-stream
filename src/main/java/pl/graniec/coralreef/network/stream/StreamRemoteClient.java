@@ -28,9 +28,9 @@
  */
 package pl.graniec.coralreef.network.stream;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InvalidClassException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,7 +42,6 @@ import java.util.List;
 import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.PacketListener;
 import pl.graniec.coralreef.network.server.RemoteClient;
-import pl.graniec.coralreef.network.server.Server;
 
 /**
  * @author Piotr Korzuszek <piotr.korzuszek@gmail.com>
@@ -51,41 +50,41 @@ import pl.graniec.coralreef.network.server.Server;
 public class StreamRemoteClient implements RemoteClient {
 
 	private class Listener extends Thread {
-		private static final int SO_TIMEOUT = 100;
 
 		/*
 		 * @see java.lang.Thread#run()
 		 */
 		@Override
 		public void run() {
-
-			InputStream is;
-			ObjectInputStream ois;
 			
-			try {
-				// socket configuration
-				socket.setSoTimeout(SO_TIMEOUT);
-				
-				// get input stream or report disconnection
-				is = socket.getInputStream();
-				ois = new ObjectInputStream(is);
-				
-			} catch (IOException e) {
-				// synchronization will guarantee right order of notifying about connection
-				// and disconnection
-				synchronized (parent.remoteClients) {
-					notifyClientDisconnected(DisconnectReason.Reset, e.getMessage());
-					return;
-				}
-			}
+			Object object;
 			
 			while (!isInterrupted()) {
 				
-				//FIXME: Finish me!
+				try {
+					
+					object = ois.readObject();
+					notifyPacketReceived(object);
+					
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// this probably means a disconnection
+					if (!isConnected()) {
+						notifyClientDisconnected(reason, e.getMessage());
+						return;
+					} else {
+						// this looks like a worst problem, let the user know
+						e.printStackTrace();
+						return;
+					}
+				}
 				
 			}
 		}
 	}
+	
+	private static final int SO_TIMEOUT = 100;
 
 	/** Parent Server */
 	private final StreamServer parent;
@@ -96,26 +95,32 @@ public class StreamRemoteClient implements RemoteClient {
 	ObjectOutputStream oos;
 	/** Input */
 	ObjectInputStream ois;
+	/** The listener */
+	private final Listener listener = new Listener();
+	
+	/** Disconnection reason if should be notified */
+	private DisconnectReason reason = DisconnectReason.Reset;
 	
 	/** Packet listeners */
 	private final List<PacketListener> packetListeners = new LinkedList<PacketListener>();
 
-	public StreamRemoteClient(StreamServer parent, Socket socket) {
+	public StreamRemoteClient(StreamServer parent, Socket socket) throws IOException {
 		this.parent = parent;
 		this.socket = socket;
 		
-		// get proper output and input stream
+		// socket configuration
+		socket.setSoTimeout(SO_TIMEOUT);
 		
-		try {
-			final OutputStream os = socket.getOutputStream();
-			final BufferedOutputStream bos = new BufferedOutputStream(os);
-			oos = new ObjectOutputStream(bos);
-			
-			
-		} catch (IOException e) {
-			// TODO Sprawdzić co może wyrzucić
-			e.printStackTrace();
-		}
+		// input
+		final InputStream is = socket.getInputStream();
+		ois = new ObjectInputStream(is);
+		
+		// output
+		final OutputStream os = socket.getOutputStream();
+		oos = new ObjectOutputStream(os);
+		
+		// run the listener thread
+		listener.start();
 	}
 	
 	/*
@@ -138,11 +143,16 @@ public class StreamRemoteClient implements RemoteClient {
 	 */
 	@Override
 	public void disconnect() {
+
+		if (!isConnected()) {
+			throw new IllegalStateException("client not connected");
+		}
+		
 		try {
+			reason = DisconnectReason.UserAction;
 			socket.close();
 		} catch (IOException e) {
-			// TODO: Sprawdzić kiedy występuje ten wyjątek
-			e.printStackTrace();
+			// ignore the socket closing exception
 		}
 	}
 
@@ -154,6 +164,27 @@ public class StreamRemoteClient implements RemoteClient {
 		return socket.isConnected();
 	}
 
+	private void notifyClientDisconnected(DisconnectReason reason, String reasonString) {
+		
+		// this synchronization is because the disconnection can be reported
+		// earlier that client connection. This prevents that situation.
+		synchronized (parent.remoteClients) {
+			parent.notifyClientDisconnected(this, reason, reasonString);
+		}
+	}
+
+	private void notifyPacketReceived(Object data) {
+		PacketListener[] copy;
+		
+		synchronized (packetListeners) {
+			copy = packetListeners.toArray(new PacketListener[packetListeners.size()]);
+		}
+		
+		for (PacketListener l : copy) {
+			l.packetReceiver(data);
+		}
+	}
+	
 	/*
 	 * @see pl.graniec.coralreef.network.server.RemoteClient#removePacketListener(pl.graniec.coralreef.network.PacketListener)
 	 */
@@ -168,25 +199,39 @@ public class StreamRemoteClient implements RemoteClient {
 			return packetListeners.remove(l);
 		}
 	}
-
+	
 	/*
 	 * @see pl.graniec.coralreef.network.server.RemoteClient#send(java.lang.Object)
 	 */
 	@Override
 	public void send(Object data) throws NotSerializableException {
+		
+		if (data == null) {
+			throw new IllegalArgumentException("data cannot be null");
+		}
+		
+		if (!isConnected()) {
+			throw new IllegalStateException("client is not connected");
+		}
+		
 		try {
 			oos.writeObject(data);
 			oos.flush();
+		} catch (InvalidClassException e) {
+			// this is exception that user should know about
+			e.printStackTrace();
 		} catch (NotSerializableException e) {
 			throw e;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// this probably means the disconnection
+			if (!isConnected()) {
+				notifyClientDisconnected(reason, e.getMessage());
+			} else {
+				// if still connected then we have worst problem
+				// let the user know about it
+				e.printStackTrace();
+			}
 		}
-	}
-	
-	private void notifyClientDisconnected(DisconnectReason reason, String reasonStr) {
-		
 	}
 
 }
