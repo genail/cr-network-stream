@@ -33,8 +33,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.exceptions.NetworkException;
@@ -110,12 +110,12 @@ public class StreamServer implements Server {
 	/** Stream socket */
 	private ServerSocket socket;
 	/** Remote clients */
-	final List<StreamRemoteClient> remoteClients = new LinkedList<StreamRemoteClient>();
+	final Set<StreamRemoteClient> remoteClients = new HashSet<StreamRemoteClient>();
 	/** New connections listener */
 	private Listener acceptListener;
 	
 	/** Connection listeners */
-	private final List<ConnectionListener> connectionListeners = new LinkedList<ConnectionListener>();
+	private final Set<ConnectionListener> connectionListeners = new HashSet<ConnectionListener>();
 	
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#addConnectionListener(pl.graniec.coralreef.network.server.ConnectionListener)
@@ -151,7 +151,7 @@ public class StreamServer implements Server {
 		// stop the accept listener
 		try {
 			acceptListener.interrupt();
-			acceptListener.wait();
+			acceptListener.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

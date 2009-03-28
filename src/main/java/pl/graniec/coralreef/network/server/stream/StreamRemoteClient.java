@@ -36,8 +36,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.List;
+import java.net.SocketTimeoutException;
+import java.util.HashSet;
+import java.util.Set;
 
 import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.PacketListener;
@@ -63,21 +64,27 @@ public class StreamRemoteClient implements RemoteClient {
 				
 				try {
 					
+					if (ois == null) {
+						// get input
+						final InputStream is = socket.getInputStream();
+						// just now because constructor of object input stream waits
+						// for header from other side
+						ois = new ObjectInputStream(is);
+					}
+					
 					object = ois.readObject();
 					notifyPacketReceived(object);
 					
+				} catch (SocketTimeoutException e) {
+					// thats fine
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					// this probably means a disconnection
-					if (!isConnected()) {
-						notifyClientDisconnected(reason, e.getMessage());
-						return;
-					} else {
-						// this looks like a worst problem, let the user know
-						e.printStackTrace();
-						return;
-					}
+					notifyClientDisconnected(reason, e.getMessage());
+					ois = null;
+					
+					break;
 				}
 				
 			}
@@ -102,7 +109,7 @@ public class StreamRemoteClient implements RemoteClient {
 	private DisconnectReason reason = DisconnectReason.Reset;
 	
 	/** Packet listeners */
-	private final List<PacketListener> packetListeners = new LinkedList<PacketListener>();
+	private final Set<PacketListener> packetListeners = new HashSet<PacketListener>();
 
 	public StreamRemoteClient(StreamServer parent, Socket socket) throws IOException {
 		this.parent = parent;
@@ -110,10 +117,6 @@ public class StreamRemoteClient implements RemoteClient {
 		
 		// socket configuration
 		socket.setSoTimeout(SO_TIMEOUT);
-		
-		// input
-		final InputStream is = socket.getInputStream();
-		ois = new ObjectInputStream(is);
 		
 		// output
 		final OutputStream os = socket.getOutputStream();
