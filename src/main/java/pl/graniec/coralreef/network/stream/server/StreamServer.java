@@ -140,14 +140,7 @@ public class StreamServer implements Server {
 		if (!isOpen()) {
 			throw new IllegalStateException("server is not open");
 		}
-		
-		try {
-			socket.close();
-			socket = null;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
+
 		// stop the accept listener
 		try {
 			acceptListener.interrupt();
@@ -155,6 +148,15 @@ public class StreamServer implements Server {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		// then close the socket
+		try {
+			socket.close();
+			socket = null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	/*

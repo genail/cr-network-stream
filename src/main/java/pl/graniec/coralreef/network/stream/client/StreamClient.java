@@ -35,10 +35,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
+import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.PacketListener;
 import pl.graniec.coralreef.network.client.Client;
 import pl.graniec.coralreef.network.client.ConnectionListener;
@@ -50,6 +52,41 @@ import pl.graniec.coralreef.network.exceptions.NetworkException;
  */
 public class StreamClient implements Client {
 
+	/** Listener for incoming data */
+	private class Listener extends Thread {
+		/*
+		 * @see java.lang.Thread#run()
+		 */
+		@Override
+		public void run() {
+			
+			Object data;
+			
+			while (!isInterrupted()) {
+				
+				try {
+					
+					data = ois.readObject();
+					notifyPacketReveived(data);
+					
+				} catch (SocketTimeoutException e) {
+					// thats fine
+				} catch (IOException e) {
+					
+					// disconnection
+					notifyDisconnected(DisconnectReason.Reset, e.getMessage());
+					
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				
+			}
+			
+		}
+	}
+
+	private static final int SO_TIMEOUT = 100;
+	
 	/** Client socket */
 	private Socket socket;
 	
@@ -62,6 +99,9 @@ public class StreamClient implements Client {
 	private final Set<PacketListener> packetListeners = new HashSet<PacketListener>();
 	/** Connection listeners */
 	private final Set<ConnectionListener> connectionListeners = new HashSet<ConnectionListener>();
+	
+	/** Incoming data listener */
+	private Listener listener;
 	
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#addConnectionListener(pl.graniec.coralreef.network.client.ConnectionListener)
@@ -98,12 +138,15 @@ public class StreamClient implements Client {
 		}
 		
 		if (isConnected()) {
-			throw new IllegalStateException("client is already connected");
+			throw new IllegalStateException("cliedatant is already connected");
 		}
 		
 		try {
 			
 			socket = new Socket(host, port);
+			
+			// configure socket
+			socket.setSoTimeout(SO_TIMEOUT);
 			
 			// create streams
 			final OutputStream os = socket.getOutputStream();
@@ -111,6 +154,13 @@ public class StreamClient implements Client {
 			
 			final InputStream is = socket.getInputStream();
 			ois = new ObjectInputStream(is);
+			
+			// notify this client connected
+			notifyConnected();
+			
+			// start the listener
+			listener = new Listener();
+			listener.start();
 			
 		} catch (UnknownHostException e) {
 			throw new NetworkException(e);
@@ -128,6 +178,15 @@ public class StreamClient implements Client {
 			throw new IllegalStateException("client is not connected");
 		}
 		
+		// first stop the listener
+		try {
+			listener.interrupt();
+			listener.join();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
+		// then close the socket
 		try {
 			socket.close();
 		} catch (IOException e) {
@@ -143,6 +202,42 @@ public class StreamClient implements Client {
 		return socket.isConnected();
 	}
 
+	private void notifyConnected() {
+		ConnectionListener[] copy;
+		
+		synchronized (connectionListeners) {
+			copy = connectionListeners.toArray(new ConnectionListener[connectionListeners.size()]);
+		}
+		
+		for (ConnectionListener l : copy) {
+			l.clientConnected();
+		}
+	}
+
+	private void notifyDisconnected(DisconnectReason reason, String reasonString) {
+		ConnectionListener[] copy;
+		
+		synchronized (connectionListeners) {
+			copy = connectionListeners.toArray(new ConnectionListener[connectionListeners.size()]);
+		}
+		
+		for (ConnectionListener l : copy) {
+			l.clientDisconnected(reason, reasonString);
+		}
+	}
+
+	private void notifyPacketReveived(Object data) {
+		PacketListener[] copy;
+		
+		synchronized (packetListeners) {
+			copy = packetListeners.toArray(new PacketListener[packetListeners.size()]);
+		}
+		
+		for (PacketListener l : copy) {
+			l.packetReceiver(data);
+		}
+	}
+	
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#removeConnectionListener(pl.graniec.coralreef.network.client.ConnectionListener)
 	 */
@@ -152,7 +247,7 @@ public class StreamClient implements Client {
 			return connectionListeners.remove(l);
 		}
 	}
-
+	
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#removePacketListener(pl.graniec.coralreef.network.PacketListener)
 	 */
@@ -167,7 +262,7 @@ public class StreamClient implements Client {
 			return packetListeners.remove(l);
 		}
 	}
-
+	
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#send(java.lang.Object)
 	 */
@@ -181,11 +276,7 @@ public class StreamClient implements Client {
 			oos.writeObject(data);
 		} catch (IOException e) {
 			// probably disconnected
-			if (!isConnected()) {
-				// FIXME: notify disconnection
-			} else {
-				e.printStackTrace();
-			}
+			notifyDisconnected(DisconnectReason.Reset, e.getMessage());
 		}
 	}
 
