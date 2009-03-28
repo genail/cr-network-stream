@@ -26,7 +26,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package pl.graniec.coralreef.network.server.stream;
+package pl.graniec.coralreef.network.stream.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;

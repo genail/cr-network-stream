@@ -26,7 +26,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package pl.graniec.coralreef.network.server.stream;
+package pl.graniec.coralreef.network.stream.server;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
@@ -48,6 +48,7 @@ import pl.graniec.coralreef.network.exceptions.NetworkException;
 import pl.graniec.coralreef.network.server.ConnectionListener;
 import pl.graniec.coralreef.network.server.RemoteClient;
 import pl.graniec.coralreef.network.server.Server;
+import pl.graniec.coralreef.network.stream.server.StreamServer;
 
 /**
  * @author Piotr Korzuszek <piotr.korzuszek@gmail.com>
@@ -93,7 +94,7 @@ public class StreamRemoteClientTest {
 	}
 
 	/**
-	 * Test method for {@link pl.graniec.coralreef.network.server.stream.StreamRemoteClient#disconnect()}.
+	 * Test method for {@link pl.graniec.coralreef.network.stream.server.StreamRemoteClient#disconnect()}.
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
@@ -115,7 +116,7 @@ public class StreamRemoteClientTest {
 	}
 
 	/**
-	 * Test method for {@link pl.graniec.coralreef.network.server.stream.StreamRemoteClient#send(java.lang.Object)}.
+	 * Test method for {@link pl.graniec.coralreef.network.stream.server.StreamRemoteClient#send(java.lang.Object)}.
 	 * @throws IOException 
 	 * @throws NetworkException 
 	 * @throws ClassNotFoundException 

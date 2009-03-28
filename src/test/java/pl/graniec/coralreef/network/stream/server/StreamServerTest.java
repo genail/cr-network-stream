@@ -26,7 +26,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package pl.graniec.coralreef.network.server.stream;
+package pl.graniec.coralreef.network.stream.server;
 
 import static org.junit.Assert.*;
 
@@ -46,6 +46,7 @@ import pl.graniec.coralreef.network.exceptions.NetworkException;
 import pl.graniec.coralreef.network.server.ConnectionListener;
 import pl.graniec.coralreef.network.server.RemoteClient;
 import pl.graniec.coralreef.network.server.Server;
+import pl.graniec.coralreef.network.stream.server.StreamServer;
 
 /**
  * @author Piotr Korzuszek <piotr.korzuszek@gmail.com>
@@ -68,7 +69,7 @@ public class StreamServerTest {
 	}
 
 	/**
-	 * Test method for {@link pl.graniec.coralreef.network.server.stream.StreamServer#addConnectionListener(pl.graniec.coralreef.network.server.ConnectionListener)}.
+	 * Test method for {@link pl.graniec.coralreef.network.stream.server.StreamServer#addConnectionListener(pl.graniec.coralreef.network.server.ConnectionListener)}.
 	 * @throws IOException 
 	 * @throws UnknownHostException 
 	 * @throws NetworkException 
@@ -104,7 +105,7 @@ public class StreamServerTest {
 	}
 
 	/**
-	 * Test method for {@link pl.graniec.coralreef.network.server.stream.StreamServer#open(int)}.
+	 * Test method for {@link pl.graniec.coralreef.network.stream.server.StreamServer#open(int)}.
 	 * @throws NetworkException 
 	 */
 	@Test
