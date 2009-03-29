@@ -189,6 +189,7 @@ public class StreamClient implements Client {
 		// then close the socket
 		try {
 			socket.close();
+			socket = null;
 		} catch (IOException e) {
 			// ignore this exception
 		}
@@ -199,7 +200,7 @@ public class StreamClient implements Client {
 	 */
 	@Override
 	public boolean isConnected() {
-		return socket.isConnected();
+		return socket != null && socket.isConnected();
 	}
 
 	private void notifyConnected() {
