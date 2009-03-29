@@ -19,9 +19,9 @@
     <url>http://graniec.pl/</url>
     
     <scm>
-        <connection>scm:svn:svn://atom/general/CoralReef/tags/cr-network-stream-0.1</connection>
-        <developerConnection>scm:svn:svn://atom/general/CoralReef/tags/cr-network-stream-0.1</developerConnection>
-        <url>svn://atom/general/CoralReef/tags/cr-network-stream-0.1</url>
+        <connection>scm:svn:svn://atom/general/CoralReef/trunk/cr-network-stream</connection>
+        <developerConnection>scm:svn:svn://atom/general/CoralReef/trunk/cr-network-stream</developerConnection>
+        <url>svn://atom/general/CoralReef/trunk/cr-network-stream</url>
     </scm>
 
     <dependencies>
