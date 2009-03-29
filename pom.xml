@@ -21,6 +21,12 @@
     
     <name>Coral Reef Network Library (Stream Socket)</name>
     <url>http://graniec.pl/</url>
+    
+    <scm>
+        <connection>scm:svn:svn://atom/general/CoralReef/trunk/cr-network-stream</connection>
+        <developerConnection>scm:svn:svn://atom/general/CoralReef/trunk/cr-network-stream</developerConnection>
+        <url>svn://atom/general/CoralReef/trunk/cr-network-stream</url>
+    </scm>
 
     <dependencies>
     
