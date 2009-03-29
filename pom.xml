@@ -17,7 +17,7 @@
     <groupId>pl.graniec</groupId>
     <artifactId>cr-network-stream</artifactId>
     <packaging>jar</packaging>
-    <version>0.1a-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     
     <name>Coral Reef Network Library (Stream Socket)</name>
     <url>http://graniec.pl/</url>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>pl.graniec</groupId>
             <artifactId>cr-network</artifactId>
-            <version>0.1a-SNAPSHOT</version>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
     
         <!-- JUnit -->
