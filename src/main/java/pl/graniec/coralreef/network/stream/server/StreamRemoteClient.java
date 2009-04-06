@@ -106,7 +106,7 @@ public class StreamRemoteClient implements RemoteClient {
 	private final Listener listener = new Listener();
 	
 	/** Disconnection reason if should be notified */
-	private DisconnectReason reason = DisconnectReason.Reset;
+	private int reason = DisconnectReason.Reset;
 	
 	/** Packet listeners */
 	private final Set<PacketListener> packetListeners = new HashSet<PacketListener>();
@@ -167,7 +167,7 @@ public class StreamRemoteClient implements RemoteClient {
 		return socket.isConnected();
 	}
 
-	private void notifyClientDisconnected(DisconnectReason reason, String reasonString) {
+	private void notifyClientDisconnected(int reason, String reasonString) {
 		
 		// this synchronization is because the disconnection can be reported
 		// earlier that client connection. This prevents that situation.

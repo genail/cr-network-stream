@@ -94,7 +94,7 @@ public class StreamServerTest {
 		context.assertIsSatisfied();
 		
 		context.checking(new Expectations(){{
-			oneOf(connectionListener).clientDisconnected(with(any(RemoteClient.class)), with(any(DisconnectReason.class)), with(any(String.class)));
+			oneOf(connectionListener).clientDisconnected(with(any(RemoteClient.class)), with(any(int.class)), with(any(String.class)));
 		}});
 		
 		client.close();

@@ -215,7 +215,7 @@ public class StreamClient implements Client {
 		}
 	}
 
-	private void notifyDisconnected(DisconnectReason reason, String reasonString) {
+	private void notifyDisconnected(int reason, String reasonString) {
 		ConnectionListener[] copy;
 		
 		synchronized (connectionListeners) {

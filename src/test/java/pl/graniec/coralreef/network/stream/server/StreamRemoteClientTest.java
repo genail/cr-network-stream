@@ -75,7 +75,7 @@ public class StreamRemoteClientTest {
 
 			@Override
 			public void clientDisconnected(RemoteClient client,
-					DisconnectReason reason, String reasonString) {
+					int reason, String reasonString) {
 				
 			}
 			

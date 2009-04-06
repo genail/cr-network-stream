@@ -36,7 +36,6 @@ import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
-import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.exceptions.NetworkException;
 import pl.graniec.coralreef.network.server.ConnectionListener;
 import pl.graniec.coralreef.network.server.RemoteClient;
@@ -196,7 +195,7 @@ public class StreamServer implements Server {
 		}
 	}
 
-	void notifyClientDisconnected(RemoteClient client, DisconnectReason reason, String reasonString) {
+	void notifyClientDisconnected(RemoteClient client, int reason, String reasonString) {
 		
 		synchronized (remoteClients) {
 			// first remove this client from the list
