@@ -39,6 +39,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.PacketListener;
@@ -50,6 +51,8 @@ import pl.graniec.coralreef.network.server.RemoteClient;
  */
 public class StreamRemoteClient implements RemoteClient {
 
+	private static final Logger logger = Logger.getLogger(StreamRemoteClient.class.getName());
+	
 	private class Listener extends Thread {
 
 		/*
@@ -181,6 +184,11 @@ public class StreamRemoteClient implements RemoteClient {
 		
 		synchronized (packetListeners) {
 			copy = packetListeners.toArray(new PacketListener[packetListeners.size()]);
+		}
+		
+		if (copy.length == 0) {
+			logger.warning("Packet " + data + " lost because there is no packet listener to intercept it");
+			return;
 		}
 		
 		for (PacketListener l : copy) {
