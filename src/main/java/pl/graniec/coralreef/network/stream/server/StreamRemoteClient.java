@@ -192,7 +192,7 @@ public class StreamRemoteClient implements RemoteClient {
 		}
 		
 		for (PacketListener l : copy) {
-			l.packetReceiver(data);
+			l.packetReceived(data);
 		}
 	}
 	

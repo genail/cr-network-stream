@@ -235,7 +235,7 @@ public class StreamClient implements Client {
 		}
 		
 		for (PacketListener l : copy) {
-			l.packetReceiver(data);
+			l.packetReceived(data);
 		}
 	}
 	

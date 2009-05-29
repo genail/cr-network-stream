@@ -110,7 +110,7 @@ public class NetworkStreamModuleTest {
 		PacketListener remoteClientPacketListener = new PacketListener() {
 
 			@Override
-			public void packetReceiver(Object data) {
+			public void packetReceived(Object data) {
 				assertEquals("from-client", data);
 				try {
 					remoteClient.send("from-server");
@@ -128,7 +128,7 @@ public class NetworkStreamModuleTest {
 		PacketListener clientPacketListener = new PacketListener() {
 
 			@Override
-			public void packetReceiver(Object data) {
+			public void packetReceived(Object data) {
 				assertEquals("from-server", data);
 				dataSendingDone = true;
 			}
