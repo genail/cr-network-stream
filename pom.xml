@@ -29,7 +29,7 @@
         <dependency>
             <groupId>pl.graniec</groupId>
             <artifactId>cr-network</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.2</version>
         </dependency>
     
         <!-- JUnit -->
