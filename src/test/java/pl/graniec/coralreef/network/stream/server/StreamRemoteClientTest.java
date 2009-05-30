@@ -68,12 +68,10 @@ public class StreamRemoteClientTest {
 		
 		server.addConnectionListener(new ConnectionListener() {
 
-			@Override
 			public void clientConnected(RemoteClient client) {
 				remoteClient = client;
 			}
 
-			@Override
 			public void clientDisconnected(RemoteClient client,
 					int reason, String reasonString) {
 				

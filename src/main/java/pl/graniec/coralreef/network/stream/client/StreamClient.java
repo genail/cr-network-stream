@@ -106,7 +106,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#addConnectionListener(pl.graniec.coralreef.network.client.ConnectionListener)
 	 */
-	@Override
 	public boolean addConnectionListener(ConnectionListener l) {
 		synchronized (connectionListeners) {
 			return connectionListeners.add(l);
@@ -116,7 +115,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#addPacketListener(pl.graniec.coralreef.network.PacketListener)
 	 */
-	@Override
 	public boolean addPacketListener(PacketListener l) {
 		
 		if (l == null) {
@@ -131,7 +129,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#connect(java.lang.String, int)
 	 */
-	@Override
 	public void connect(String host, int port) throws NetworkException {
 		if (host == null) {
 			throw new IllegalArgumentException("parameters cannot be null");
@@ -172,7 +169,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#disconnect()
 	 */
-	@Override
 	public void disconnect() {
 		if (!isConnected()) {
 			throw new IllegalStateException("client is not connected");
@@ -198,7 +194,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#isConnected()
 	 */
-	@Override
 	public boolean isConnected() {
 		return socket != null && socket.isConnected();
 	}
@@ -242,7 +237,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#removeConnectionListener(pl.graniec.coralreef.network.client.ConnectionListener)
 	 */
-	@Override
 	public boolean removeConnectionListener(ConnectionListener l) {
 		synchronized (connectionListeners) {
 			return connectionListeners.remove(l);
@@ -252,7 +246,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#removePacketListener(pl.graniec.coralreef.network.PacketListener)
 	 */
-	@Override
 	public boolean removePacketListener(PacketListener l) {
 		
 		if (l == null) {
@@ -267,7 +260,6 @@ public class StreamClient implements Client {
 	/*
 	 * @see pl.graniec.coralreef.network.client.Client#send(java.lang.Object)
 	 */
-	@Override
 	public void send(Object data) throws NotSerializableException, NetworkException {
 		if (!isConnected()) {
 			throw new IllegalStateException("not connected");

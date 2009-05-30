@@ -119,7 +119,6 @@ public class StreamServer implements Server {
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#addConnectionListener(pl.graniec.coralreef.network.server.ConnectionListener)
 	 */
-	@Override
 	public boolean addConnectionListener(ConnectionListener l) {
 		
 		if (l == null) {
@@ -134,7 +133,6 @@ public class StreamServer implements Server {
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#close()
 	 */
-	@Override
 	public void close() {
 		if (!isOpen()) {
 			throw new IllegalStateException("server is not open");
@@ -161,7 +159,6 @@ public class StreamServer implements Server {
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#getPort()
 	 */
-	@Override
 	public int getPort() {
 		// this.socket object can change because of threads
 		final ServerSocket socket = this.socket;
@@ -176,7 +173,6 @@ public class StreamServer implements Server {
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#isOpen()
 	 */
-	@Override
 	public boolean isOpen() {
 		// this.socket object can change because of threads
 		final ServerSocket socket = this.socket;
@@ -221,7 +217,6 @@ public class StreamServer implements Server {
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#open(int)
 	 */
-	@Override
 	public void open(int port) throws NetworkException {
 		try {
 			
@@ -253,7 +248,6 @@ public class StreamServer implements Server {
 	/*
 	 * @see pl.graniec.coralreef.network.server.Server#removeConnectionListener(pl.graniec.coralreef.network.server.ConnectionListener)
 	 */
-	@Override
 	public boolean removeConnectionListener(ConnectionListener l) {
 		
 		if (l == null) {

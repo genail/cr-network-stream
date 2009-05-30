@@ -132,7 +132,6 @@ public class StreamRemoteClient implements RemoteClient {
 	/*
 	 * @see pl.graniec.coralreef.network.server.RemoteClient#addPacketListener(pl.graniec.coralreef.network.PacketListener)
 	 */
-	@Override
 	public boolean addPacketListener(PacketListener l) {
 		
 		if (l == null) {
@@ -147,7 +146,6 @@ public class StreamRemoteClient implements RemoteClient {
 	/*
 	 * @see pl.graniec.coralreef.network.server.RemoteClient#disconnect()
 	 */
-	@Override
 	public void disconnect() {
 
 		if (!isConnected()) {
@@ -165,7 +163,6 @@ public class StreamRemoteClient implements RemoteClient {
 	/*
 	 * @see pl.graniec.coralreef.network.server.RemoteClient#isConnected()
 	 */
-	@Override
 	public boolean isConnected() {
 		return socket.isConnected();
 	}
@@ -199,7 +196,6 @@ public class StreamRemoteClient implements RemoteClient {
 	/*
 	 * @see pl.graniec.coralreef.network.server.RemoteClient#removePacketListener(pl.graniec.coralreef.network.PacketListener)
 	 */
-	@Override
 	public boolean removePacketListener(PacketListener l) {
 		
 		if (l == null) {
@@ -214,7 +210,6 @@ public class StreamRemoteClient implements RemoteClient {
 	/*
 	 * @see pl.graniec.coralreef.network.server.RemoteClient#send(java.lang.Object)
 	 */
-	@Override
 	public void send(Object data) throws NotSerializableException {
 		
 		if (data == null) {

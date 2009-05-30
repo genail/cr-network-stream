@@ -87,12 +87,10 @@ public class NetworkStreamModuleTest {
 	public void testDataSending() throws InterruptedException, NetworkException, NotSerializableException {
 		ConnectionListener serverConnectionListener = new ConnectionListener() {
 
-			@Override
 			public void clientConnected(RemoteClient client) {
 				remoteClient = client;
 			}
 
-			@Override
 			public void clientDisconnected(RemoteClient client,
 					int reason, String reasonString) {
 			}
@@ -109,7 +107,6 @@ public class NetworkStreamModuleTest {
 		
 		PacketListener remoteClientPacketListener = new PacketListener() {
 
-			@Override
 			public void packetReceived(Object data) {
 				assertEquals("from-client", data);
 				try {
@@ -127,7 +124,6 @@ public class NetworkStreamModuleTest {
 		
 		PacketListener clientPacketListener = new PacketListener() {
 
-			@Override
 			public void packetReceived(Object data) {
 				assertEquals("from-server", data);
 				dataSendingDone = true;
