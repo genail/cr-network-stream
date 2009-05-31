@@ -38,6 +38,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -79,7 +81,8 @@ public class StreamRemoteClient implements RemoteClient {
 					notifyPacketReceived(object);
 					
 				} catch (SocketTimeoutException e) {
-					// thats fine
+					// flush the packet buffer
+					flushBuffer();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -94,7 +97,11 @@ public class StreamRemoteClient implements RemoteClient {
 		}
 	}
 	
+	/** Timeout for socket while waiting for incoming packet */
 	private static final int SO_TIMEOUT = 100;
+	/** Limit of incoming packets for buffer while there is no listeners */
+	private static final int BUFFER_LIMIT = 1024;
+	
 
 	/** Parent Server */
 	private final StreamServer parent;
@@ -114,6 +121,24 @@ public class StreamRemoteClient implements RemoteClient {
 	/** Packet listeners */
 	private final Set<PacketListener> packetListeners = new HashSet<PacketListener>();
 
+	/**
+	 * If packet is received and there's no packet listener at time
+	 * then normally it would be lost but that's not what user
+	 * probably wants. To prevent that, all packets that are received
+	 * during zero-packet-listeners state are stored in this buffer
+	 * and flushed out if a first packet listener is added.
+	 * <p>
+	 * There is a limit of stored packets, but it should be satisfactionary
+	 * if client won't be left without listener for too long.  
+	 */
+	private final List<Object> packetBuffer = new LinkedList<Object>();
+	
+	/**
+	 * 
+	 * @param parent
+	 * @param socket
+	 * @throws IOException
+	 */
 	public StreamRemoteClient(StreamServer parent, Socket socket) throws IOException {
 		this.parent = parent;
 		this.socket = socket;
@@ -177,20 +202,24 @@ public class StreamRemoteClient implements RemoteClient {
 	}
 
 	private void notifyPacketReceived(Object data) {
-		PacketListener[] copy;
 		
-		synchronized (packetListeners) {
-			copy = packetListeners.toArray(new PacketListener[packetListeners.size()]);
-		}
+		addToBuffer(data);
+		flushBuffer();
 		
-		if (copy.length == 0) {
-			logger.warning("Packet " + data + " lost because there is no packet listener to intercept it");
-			return;
-		}
-		
-		for (PacketListener l : copy) {
-			l.packetReceived(data);
-		}
+//		PacketListener[] copy;
+//		
+//		synchronized (packetListeners) {
+//			copy = packetListeners.toArray(new PacketListener[packetListeners.size()]);
+//		}
+//		
+//		if (copy.length == 0) {
+//			logger.warning("Packet " + data + " lost because there is no packet listener to intercept it");
+//			return;
+//		}
+//		
+//		for (PacketListener l : copy) {
+//			l.packetReceived(data);
+//		}
 	}
 	
 	/*
@@ -238,6 +267,49 @@ public class StreamRemoteClient implements RemoteClient {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private void addToBuffer(Object packet) {
+		synchronized (packetBuffer) {
+			
+			if (packetBuffer.size() >= BUFFER_LIMIT) {
+				logger.warning(
+						"Packet buffer reaches its limit. This probably means " +
+						"that there is a bug in application because there's no " +
+						"packet listener to receive this data."
+				);
+				return;
+			}
+			
+			packetBuffer.add(packet);
+		}
+	}
+	
+	private void flushBuffer() {
+		
+		if (packetBuffer.size() == 0) {
+			return;
+		}
+		
+		PacketListener[] copy;
+		
+		synchronized (packetListeners) {
+			copy = packetListeners.toArray(new PacketListener[packetListeners.size()]);
+		}
+		
+		if (copy.length == 0) {
+			return;
+		}
+		
+		synchronized (packetBuffer) {
+			for (PacketListener l : copy) {
+				for (Object data : packetBuffer) {
+					l.packetReceived(data);
+				}
+			}
+		}
+		
+		packetBuffer.clear();
 	}
 
 }
