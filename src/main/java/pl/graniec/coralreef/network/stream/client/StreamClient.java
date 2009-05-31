@@ -141,6 +141,7 @@ public class StreamClient implements Client {
 		try {
 			
 			socket = new Socket(host, port);
+			socket.setTcpNoDelay(true);
 			
 			// configure socket
 			socket.setSoTimeout(SO_TIMEOUT);
