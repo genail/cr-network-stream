@@ -1,6 +1,7 @@
 0.3:
 - Major speed up of packet sending
 - Fixed bug with lost packets when RemoteClient will receive a packet before any listener were added
+- Displaying error when InvalidClassException is thrown
 
 0.2:
 - Some changes because of typo in cr-network

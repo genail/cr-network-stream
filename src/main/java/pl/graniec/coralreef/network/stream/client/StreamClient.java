@@ -30,6 +30,7 @@ package pl.graniec.coralreef.network.stream.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InvalidClassException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -39,6 +40,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.PacketListener;
@@ -52,6 +54,8 @@ import pl.graniec.coralreef.network.exceptions.NetworkException;
  */
 public class StreamClient implements Client {
 
+	private static final Logger logger = Logger.getLogger(StreamClient.class.getName());
+	
 	/** Listener for incoming data */
 	private class Listener extends Thread {
 		/*
@@ -71,6 +75,9 @@ public class StreamClient implements Client {
 					
 				} catch (SocketTimeoutException e) {
 					// thats fine
+				
+				} catch (InvalidClassException e) {
+					logger.severe(e.getMessage());
 				} catch (IOException e) {
 					
 					// disconnection

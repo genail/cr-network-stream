@@ -85,6 +85,8 @@ public class StreamRemoteClient implements RemoteClient {
 					flushBuffer();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
+				} catch (InvalidClassException e) {
+					logger.severe(e.getMessage());
 				} catch (IOException e) {
 					// this probably means a disconnection
 					notifyClientDisconnected(reason, e.getMessage());
