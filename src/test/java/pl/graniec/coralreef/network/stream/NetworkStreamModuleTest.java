@@ -39,7 +39,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.graniec.coralreef.network.DisconnectReason;
 import pl.graniec.coralreef.network.PacketListener;
 import pl.graniec.coralreef.network.client.Client;
 import pl.graniec.coralreef.network.exceptions.NetworkException;
